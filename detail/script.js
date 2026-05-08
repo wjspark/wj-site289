@@ -50,10 +50,10 @@ window.addEventListener('DOMContentLoaded', () => {
   // 预加载下一个随机游戏
   fetch('../games.json')
     .then(r => r.json())
-    .then(games => {
-      const others = games.filter(g => g.name !== gameName);
-      const pick = others[Math.floor(Math.random() * others.length)];
-      nextGameUrl = `index.html?name=${encodeURIComponent(pick.name)}&icon=${encodeURIComponent(pick.icon)}&path=${encodeURIComponent(window.location.origin + pick.url)}`;
+    .then(res => {
+      const list = res.data?.list || [];
+      const pick = list[Math.floor(Math.random() * list.length)];
+      nextGameUrl = pick?.gameUrl ? `https://games.nfiuh.top${pick.gameUrl}` : null;
     })
     .catch(() => {});
 
@@ -74,7 +74,12 @@ window.addEventListener('DOMContentLoaded', () => {
 
   playButton.addEventListener('click', () => {
     if (!isReady) return;
-    window.location.href = nextGameUrl || gamePath;
+    const targetUrl = nextGameUrl || gamePath;
+    if (targetUrl) {
+      const iframe = document.getElementById('play-frame');
+      iframe.src = targetUrl;
+      document.getElementById('play-section').style.height = '100vh';
+    }
   });
 
 });
